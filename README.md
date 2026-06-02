@@ -1,7 +1,8 @@
 # Pake Manager
 
 Pake 的配套桌面管理器——侧边栏统一管理多个 Web 应用。
-![Uploading 图片.png…]
+<img width="2114" height="1171" alt="图片" src="https://github.com/user-attachments/assets/eb08d0a7-da78-4e6d-a11d-a4473acb26aa" />
+
 
 
 
