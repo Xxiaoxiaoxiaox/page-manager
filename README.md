@@ -3,6 +3,9 @@
 Pake 的配套桌面管理器——侧边栏统一管理多个 Web 应用。
 ![Uploading 图片.png…]()
 
+
+
+
 ## 下载使用
 
 1. 打开 [Releases 页面](https://github.com/Xxiaoxiaoxiaox/page-manager/releases)
