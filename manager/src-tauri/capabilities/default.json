@@ -1,0 +1,24 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "manager-capability",
+  "description": "Capability for Pake Manager",
+  "webviews": ["*"],
+  "remote": {
+    "urls": ["https://*.*"]
+  },
+  "permissions": [
+    "core:default",
+    "core:window:allow-theme",
+    "core:window:allow-start-dragging",
+    "core:window:allow-close",
+    "core:window:allow-create",
+    "core:window:allow-show",
+    "core:window:allow-set-focus",
+    "core:window:allow-set-title",
+    "core:window:allow-center",
+    "core:webview:allow-create-webview",
+    "core:webview:allow-create-webview-window",
+    "core:webview:allow-internal-toggle-devtools",
+    "core:event:default"
+  ]
+}

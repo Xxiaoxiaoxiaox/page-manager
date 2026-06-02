@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pake Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="light">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sub">Pake Manager</div>
+      <button class="theme-toggle" id="themeToggle" title="切换主题">☀️</button>
+    </div>
+    <div class="app-list" id="appList"></div>
+    <button class="add-btn" id="addBtn">+ 添加应用</button>
+  </div>
+
+  <div class="resize-handle" id="resizeHandle"></div>
+
+  <div class="content">
+    <div class="toolbar">
+      <div class="nav-btns">
+        <button class="nav-btn" id="navBack">←</button>
+        <button class="nav-btn" id="navFwd">→</button>
+        <button class="nav-btn" id="navRefresh">↻</button>
+      </div>
+      <div class="title"></div>
+      <button class="action-btn" id="proxyBtn" title="代理设置">🌐 代理</button>
+      <button class="action-btn" id="manageBtn">⚙ 管理</button>
+    </div>
+    <div class="webview" id="webviewContainer"></div>
+  </div>
+
+  <!-- 管理弹窗 -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <span id="modalTitle">管理应用</span>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

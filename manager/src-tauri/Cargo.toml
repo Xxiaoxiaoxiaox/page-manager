@@ -1,0 +1,21 @@
+[package]
+name = "pake-manager"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+name = "pake_manager_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-ico", "image-png", "unstable"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "5"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
