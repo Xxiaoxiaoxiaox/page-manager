@@ -16,14 +16,32 @@ fn get_sidebar_width() -> f64 {
     f64::from_bits(SIDEBAR_WIDTH.load(Ordering::Relaxed))
 }
 
+/// Compute usable client area in physical pixels.
+/// On Windows, `inner_size()` returns the HWND client rect which may include
+/// the DWM invisible resize border.  We detect the border width from the
+/// horizontal difference between outer/inner and subtract it.
+fn compute_usable_bounds(window: &tauri::Window) -> (i32, i32) {
+    let inner = window.inner_size().unwrap_or(PhysicalSize { width: 1100, height: 720 });
+    let outer = window.outer_size().unwrap_or(inner);
+
+    // DWM invisible border per side (from horizontal difference)
+    let h_diff = (outer.width as i64 - inner.width as i64).max(0);
+    let border = (h_diff / 2) as i32;
+
+    // Usable area = inner minus invisible borders
+    let usable_w = inner.width as i32 - 2 * border;
+    let usable_h = inner.height as i32 - border; // subtract bottom border only
+    (usable_w.max(200), usable_h.max(200))
+}
+
 fn update_content_webview(window: &tauri::Window) {
     if let Some(wv) = window.get_webview("content_area") {
-        let ws = window.outer_size().unwrap_or(PhysicalSize { width: 1100, height: 720 });
+        let (usable_w, usable_h) = compute_usable_bounds(window);
         let scale = window.scale_factor().unwrap_or(1.0);
         let sx = ((get_sidebar_width() + 4.0) * scale) as i32;
         let sy = (44.0 * scale) as i32;
-        let cw = (ws.width as i32 - sx).max(200);
-        let ch = (ws.height as i32 - sy).max(200);
+        let cw = (usable_w - sx).max(200);
+        let ch = (usable_h - sy).max(200);
         let _ = wv.set_position(Position::Physical(PhysicalPosition::new(sx, sy)));
         let _ = wv.set_size(Size::Physical(PhysicalSize::new(cw as u32, ch as u32)));
     }
@@ -143,16 +161,18 @@ fn navigate_to(app: tauri::AppHandle, url: String, sidebar_width: Option<f64>) -
     let parsed_url: tauri::Url = url.parse().map_err(|e| format!("Invalid URL: {}", e))?;
     let app_clone = app.clone();
     std::thread::spawn(move || {
+        // Small delay to let the window finish layout/DPI adjustments
+        std::thread::sleep(std::time::Duration::from_millis(100));
         if let Some(old) = app_clone.get_webview("content_area") {
             let _ = old.close();
         }
         if let Some(main_window) = app_clone.get_window("main") {
-            let ws = main_window.outer_size().unwrap_or(PhysicalSize { width: 1100, height: 720 });
+            let (usable_w, usable_h) = compute_usable_bounds(&main_window);
             let scale = main_window.scale_factor().unwrap_or(1.0);
             let sx = ((get_sidebar_width() + 4.0) * scale) as i32;
             let sy = (44.0 * scale) as i32;
-            let cw = (ws.width as i32 - sx).max(200);
-            let ch = (ws.height as i32 - sy).max(200);
+            let cw = (usable_w - sx).max(200);
+            let ch = (usable_h - sy).max(200);
 
             let proxy_str = {
                 let st = app_clone.state::<AppState>();
@@ -184,12 +204,16 @@ pub fn run() {
     tauri::Builder::default()
         .manage(AppState { config: Mutex::new(cfg.clone()) })
         .setup(move |app| {
-            let _window = WebviewWindowBuilder::new(app, "main", WebviewUrl::App(std::path::PathBuf::new()))
+            let mut builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::App(std::path::PathBuf::new()))
                 .title("Pake Manager")
-                .inner_size(cfg.window_width, cfg.window_height)
                 .min_inner_size(800.0, 500.0)
-                .resizable(true)
-                .build()?;
+                .resizable(true);
+            if cfg.maximized {
+                builder = builder.maximized(true);
+            } else {
+                builder = builder.inner_size(cfg.window_width, cfg.window_height);
+            }
+            let _window = builder.build()?;
             Ok(())
         })
         .on_window_event(|window, event| {
